@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git 'https://github.com/your-username/s3-to-rds-or-glue.git'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t s3-to-rds-or-glue .'
+            }
+        }
+        stage('Push to ECR') {
+            steps {
+                sh '''
+                aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <account_id>.dkr.ecr.us-east-1.amazonaws.com
+                docker tag s3-to-rds-or-glue:latest <account_id>.dkr.ecr.us-east-1.amazonaws.com/s3-to-rds-or-glue:latest
+                docker push <account_id>.dkr.ecr.us-east-1.amazonaws.com/s3-to-rds-or-glue:latest
+                '''
+            }
+        }
+        stage('Deploy Lambda') {
+            steps {
+                sh 'terraform init && terraform apply -auto-approve'
+            }
+        }
+    }
+}
