@@ -1,0 +1,18 @@
+Configure aws cli:
+aws configure
+
+Create ECR Repo:
+aws ecr create-repository --repository-name s3-to-rds-or-glue
+
+Authenticate Docker to ECR:
+aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <account_id>.dkr.ecr.<region>.amazonaws.com
+
+Build Docker image:
+docker build -t s3-to-rds-or-glue .
+
+Tag the image:
+docker tag s3-to-rds-or-glue:latest <account_id>.dkr.ecr.<region>.amazonaws.com/s3-to-rds-or-glue:latest
+
+push the image to ECR:
+docker push <account_id>.dkr.ecr.<region>.amazonaws.com/s3-to-rds-or-glue:latest
+
